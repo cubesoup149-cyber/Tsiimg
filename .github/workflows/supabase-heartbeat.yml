@@ -1,0 +1,43 @@
+name: TSIcode Supabase Image Heartbeat
+
+on:
+  schedule:
+    - cron: "7 */2 * * *"
+  workflow_dispatch:
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create tiny heartbeat image
+        run: |
+          echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=" | base64 -d > heartbeat.png
+
+      - name: Remove previous heartbeat image
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          curl --fail-with-body \
+            -X DELETE \
+            "${SUPABASE_URL}/storage/v1/object/images/__heartbeat__.png" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            || true
+
+      - name: Upload heartbeat image
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: |
+          curl --fail-with-body \
+            -X POST \
+            "${SUPABASE_URL}/storage/v1/object/images/__heartbeat__.png" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            -H "Content-Type: image/png" \
+            --data-binary @heartbeat.png
+
+      - name: Finished
+        run: echo "TSIcode heartbeat image uploaded successfully."
