@@ -10,9 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create tiny heartbeat image
-        run: |
-          echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=" | base64 -d > heartbeat.png
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Remove previous heartbeat image
         env:
@@ -26,7 +25,7 @@ jobs:
             -H "Authorization: Bearer ${SUPABASE_KEY}" \
             || true
 
-      - name: Upload heartbeat image
+      - name: Upload custom heartbeat image
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -40,4 +39,4 @@ jobs:
             --data-binary @heartbeat.png
 
       - name: Finished
-        run: echo "TSIcode heartbeat image uploaded successfully."
+        run: echo "TSIcode custom heartbeat image uploaded successfully."
